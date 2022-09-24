@@ -63,9 +63,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void addProduct(ProductVO productVO) {
-        if (productVO.getId() != null) {
-            // 修改 TODO
-        }
+        //        if (productVO.getId() != null) {
+        //            // 修改
+        //        }
         // 新增
         // 商品编号
         productVO.setPNum(UUID.randomUUID().toString());
