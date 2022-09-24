@@ -15,7 +15,7 @@ import java.util.List;
  * @FileName: CategoryService
  */
 public interface CategoryService {
-    PageVO<ProductCategoryTreeNodeVO> categoryTree(int pageNum, int pageSize);
+    PageVO<ProductCategoryTreeNodeVO> categoryTree(Integer pageNum, Integer pageSize);
 
     List<ProductCategoryTreeNodeVO> getParentCategoryTree();
 

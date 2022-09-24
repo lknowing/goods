@@ -1,6 +1,5 @@
 package com.goods.business.service.impl;
 
-import com.github.pagehelper.PageInfo;
 import com.goods.business.converter.ProductCategoryTreeNodeVOConverter;
 import com.goods.business.mapper.ProductCategoryMapper;
 import com.goods.business.service.CategoryService;
@@ -33,14 +32,16 @@ public class CategoryServiceImpl implements CategoryService {
     private ProductCategoryTreeNodeVOConverter productCategoryTreeNodeVOConverter;
 
     @Override
-    public PageVO<ProductCategoryTreeNodeVO> categoryTree(int pageNum, int pageSize) {
+    public PageVO<ProductCategoryTreeNodeVO> categoryTree(Integer pageNum, Integer pageSize) {
         List<ProductCategory> productCategoryList = productCategoryMapper.selectAll();
         List<ProductCategoryTreeNodeVO> productCategoryTreeNodeVOList
                 = productCategoryTreeNodeVOConverter.converterToProductCategoryTreeNodeVOList(productCategoryList);
         List<ProductCategoryTreeNodeVO> categoryTreeNodeVOS = CategoryTreeBuilder.build(productCategoryTreeNodeVOList);
-        PageInfo<ProductCategoryTreeNodeVO> info = new PageInfo<>(categoryTreeNodeVOS);
+        if (pageNum == null && pageSize == null) {
+            return new PageVO<>(categoryTreeNodeVOS.size(), categoryTreeNodeVOS);
+        }
         List<ProductCategoryTreeNodeVO> page = ListPageUtils.page(categoryTreeNodeVOS, pageSize, pageNum);
-        return new PageVO<>(info.getTotal(), page);
+        return new PageVO<>(categoryTreeNodeVOS.size(), page);
     }
 
     @Override

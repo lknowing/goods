@@ -25,8 +25,9 @@ public class ProductCategoryController {
     private CategoryService categoryService;
 
     @GetMapping("categoryTree")
-    public ResponseBean<PageVO<ProductCategoryTreeNodeVO>> categoryTree(@RequestParam("pageNum") int pageNum,
-                                                                        @RequestParam("pageSize") int pageSize) {
+    public ResponseBean<PageVO<ProductCategoryTreeNodeVO>> categoryTree(
+            @RequestParam(value = "pageNum", required = false) Integer pageNum,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize) {
         PageVO<ProductCategoryTreeNodeVO> productCategoryTreeNodeVOList = this.categoryService.categoryTree(pageNum, pageSize);
         return ResponseBean.success(productCategoryTreeNodeVOList);
     }

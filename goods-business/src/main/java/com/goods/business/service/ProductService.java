@@ -11,5 +11,19 @@ import com.goods.common.vo.system.PageVO;
  * @FileName: ProductService
  */
 public interface ProductService {
-    PageVO<ProductVO> findProductList(int pageNum, int pageSize, ProductVO productVO);
+    PageVO<ProductVO> findProductList(Integer pageNum, Integer pageSize, ProductVO productVO);
+
+    void addProduct(ProductVO productVO);
+
+    void publish(Long productId);
+
+    void remove(Long productId);
+
+    void delete(Long productId);
+
+    void back(Long productId);
+
+    ProductVO edit(Long productId);
+
+    void update(Long productId, ProductVO productVO);
 }
