@@ -15,6 +15,7 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * title:
@@ -89,6 +90,17 @@ public class SupplyServiceImpl implements SupplyService {
     @Override
     public void delete(Long supplierId) {
         supplyMapper.deleteByPrimaryKey(supplierId);
+    }
+
+    @Override
+    public List<SupplierVO> findAll() {
+        List<Supplier> supplierList = supplyMapper.selectAll();
+        List<SupplierVO> supplierVOList = supplierList.stream().map(supplier -> {
+            SupplierVO supplierVO = new SupplierVO();
+            BeanUtils.copyProperties(supplier, supplierVO);
+            return supplierVO;
+        }).collect(Collectors.toList());
+        return supplierVOList;
     }
 
 

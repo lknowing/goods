@@ -24,4 +24,6 @@ public interface SupplyService {
     void update(Long supplierId, SupplierVO supplierVO);
 
     void delete(Long supplierId);
+
+    List<SupplierVO> findAll();
 }

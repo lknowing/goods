@@ -1,7 +1,10 @@
 package com.goods.business.service;
 
+import com.goods.common.vo.business.ProductStockVO;
 import com.goods.common.vo.business.ProductVO;
 import com.goods.common.vo.system.PageVO;
+
+import java.util.List;
 
 /**
  * title:
@@ -26,4 +29,8 @@ public interface ProductService {
     ProductVO edit(Long productId);
 
     void update(Long productId, ProductVO productVO);
+
+    PageVO<ProductStockVO> findProductStocks(Integer pageNum, Integer pageSize, String name, String categorys);
+
+    List<ProductStockVO> findAllStocks(Integer pageNum, Integer pageSize, String name, String categorys);
 }

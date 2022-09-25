@@ -1,9 +1,12 @@
 package com.goods.business.service.impl;
 
 import com.goods.business.mapper.ProductMapper;
+import com.goods.business.mapper.ProductStockMapper;
 import com.goods.business.service.ProductService;
 import com.goods.common.model.business.Product;
+import com.goods.common.model.business.ProductStock;
 import com.goods.common.utils.ListPageUtils;
+import com.goods.common.vo.business.ProductStockVO;
 import com.goods.common.vo.business.ProductVO;
 import com.goods.common.vo.system.PageVO;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +32,9 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private ProductStockMapper productStockMapper;
+
     @Override
     public PageVO<ProductVO> findProductList(Integer pageNum, Integer pageSize, ProductVO productVO) {
         String name = productVO.getName();
@@ -42,13 +48,11 @@ public class ProductServiceImpl implements ProductService {
             criteria.andLike("name", "%" + name + "%");
         }
         if (productVO.getCategoryKeys() != null) {
-            Long oneCategoryId = productVO.getOneCategoryId();
-            Long twoCategoryId = productVO.getTwoCategoryId();
-            Long threeCategoryId = productVO.getThreeCategoryId();
-            if (oneCategoryId != null && twoCategoryId != null && threeCategoryId != null) {
-                criteria.andEqualTo("oneCategoryId", oneCategoryId);
-                criteria.andEqualTo("twoCategoryId", twoCategoryId);
-                criteria.andEqualTo("threeCategoryId", threeCategoryId);
+            Long[] categoryKeys = productVO.getCategoryKeys();
+            if (categoryKeys != null && categoryKeys.length == 3) {
+                criteria.andEqualTo("oneCategoryId", categoryKeys[0]);
+                criteria.andEqualTo("twoCategoryId", categoryKeys[1]);
+                criteria.andEqualTo("threeCategoryId", categoryKeys[2]);
             }
         }
         List<Product> productList = productMapper.selectByExample(example);
@@ -63,9 +67,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void addProduct(ProductVO productVO) {
-        //        if (productVO.getId() != null) {
-        //            // 修改
-        //        }
         // 新增
         // 商品编号
         productVO.setPNum(UUID.randomUUID().toString());
@@ -128,5 +129,40 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         BeanUtils.copyProperties(productVO, product);
         productMapper.updateByPrimaryKeySelective(product);
+    }
+
+    @Override
+    public PageVO<ProductStockVO> findProductStocks(Integer pageNum, Integer pageSize, String name, String categorys) {
+        Example example = new Example(Product.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("status", 0);
+        if (!StringUtils.isEmpty(name)) {
+            criteria.andLike("name", "%" + name + "%");
+        }
+        if (!StringUtils.isEmpty(categorys)) {
+            String[] split = categorys.split(",");
+            criteria.andEqualTo("oneCategoryId", split[0]);
+            criteria.andEqualTo("twoCategoryId", split[1]);
+            criteria.andEqualTo("threeCategoryId", split[2]);
+        }
+        List<Product> productList = productMapper.selectByExample(example);
+        List<ProductStockVO> stockVoList = productList.stream().map(product -> {
+            ProductStock productStock = new ProductStock();
+            productStock.setPNum(product.getPNum());
+            ProductStock stock = productStockMapper.selectOne(productStock);
+            ProductStockVO productStockVO = new ProductStockVO();
+            BeanUtils.copyProperties(product, productStockVO);
+            productStockVO.setStock(stock.getStock());
+            return productStockVO;
+        }).collect(Collectors.toList());
+        List<ProductStockVO> page = ListPageUtils.page(stockVoList, pageSize, pageNum);
+        return new PageVO<>(stockVoList.size(), page);
+    }
+
+    @Override
+    public List<ProductStockVO> findAllStocks(Integer pageNum, Integer pageSize, String name, String categorys) {
+        PageVO<ProductStockVO> productStocks = findProductStocks(pageNum, pageSize, name, categorys);
+        List<ProductStockVO> productStockVOList = productStocks.getRows();
+        return productStockVOList;
     }
 }

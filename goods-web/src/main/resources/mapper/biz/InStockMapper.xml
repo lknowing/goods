@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goods.business.mapper.InStockMapper">
+    <resultMap id="InStockMap" type="com.goods.common.vo.business.InStockItemVO" autoMapping="true">
+        <id property="id" column="id"/>
+    </resultMap>
+
+    <select id="getInStockItemVO" resultMap="InStockMap">
+        select bp.id,
+               bp.p_num,
+               bp.name,
+               bp.model,
+               bp.unit,
+               bp.image_url,
+               bisi.product_number 'count'
+        from biz_in_stock bis
+                 inner join biz_in_stock_info bisi
+                            on bis.in_num = bisi.in_num
+                 inner join biz_product bp
+                            on bisi.p_num = bp.p_num
+        where bis.id = #{inStockId}
+        limit #{pageNo},3
+    </select>
+
+</mapper>

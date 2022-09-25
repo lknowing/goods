@@ -7,6 +7,8 @@ import com.goods.common.vo.system.PageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * title:
  *
@@ -19,6 +21,12 @@ import org.springframework.web.bind.annotation.*;
 public class SupplyController {
     @Autowired
     private SupplyService supplyService;
+
+    @GetMapping("findAll")
+    public ResponseBean findAll() {
+       List<SupplierVO> supplierVOList = supplyService.findAll();
+        return ResponseBean.success(supplierVOList);
+    }
 
     // business/supplier/findSupplierList?pageNum=1&pageSize=10&name=
     @GetMapping("findSupplierList")

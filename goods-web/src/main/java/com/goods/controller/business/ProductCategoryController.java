@@ -60,8 +60,7 @@ public class ProductCategoryController {
 
     @DeleteMapping("delete/{categoryId}")
     public ResponseBean delete(@PathVariable Long categoryId) {
-        this.categoryService.delete(categoryId);
-        return ResponseBean.success();
+        return this.categoryService.delete(categoryId);
     }
 
 }

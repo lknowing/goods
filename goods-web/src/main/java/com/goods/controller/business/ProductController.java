@@ -2,6 +2,7 @@ package com.goods.controller.business;
 
 import com.goods.business.service.ProductService;
 import com.goods.common.response.ResponseBean;
+import com.goods.common.vo.business.ProductStockVO;
 import com.goods.common.vo.business.ProductVO;
 import com.goods.common.vo.system.PageVO;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * title:
@@ -25,8 +27,44 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    // findAllStocks?pageSize=9&pageNum=1
+    @GetMapping("findAllStocks")
+    public ResponseBean findAllStocks(@RequestParam Integer pageNum,
+                                      @RequestParam Integer pageSize,
+                                      HttpServletRequest request) {
+        try {
+            String categorys = request.getParameter("categorys");
+            String name = request.getParameter("name");
+            List<ProductStockVO> stockVOList = productService.findAllStocks(pageNum, pageSize, name, categorys);
+            return ResponseBean.success(stockVOList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("errorMsg", "异常");
+        return ResponseBean.error(map);
+    }
+
+    // findProductStocks?pageSize=9&pageNum=1
+    @GetMapping("findProductStocks")
+    public ResponseBean findProductStocks(@RequestParam Integer pageNum,
+                                          @RequestParam Integer pageSize,
+                                          HttpServletRequest request) {
+        try {
+            String categorys = request.getParameter("categorys");
+            String name = request.getParameter("name");
+            PageVO<ProductStockVO> stockVOPageVO = productService.findProductStocks(pageNum, pageSize, name, categorys);
+            return ResponseBean.success(stockVOPageVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("errorMsg", "异常");
+        return ResponseBean.error(map);
+    }
+
     // business/product/findProductList?pageNum=1&pageSize=6&name=&categoryId=&supplier=&status=0
-    @GetMapping("findProductList")
+    @GetMapping({"findProductList", "findProducts"})
     public ResponseBean findProductList(@RequestParam Integer pageNum,
                                         @RequestParam Integer pageSize,
                                         ProductVO productVO,
@@ -34,9 +72,6 @@ public class ProductController {
         String categorys = request.getParameter("categorys");
         if (!StringUtils.isEmpty(categorys)) {
             String[] split = categorys.split(",");
-            productVO.setOneCategoryId(Long.parseLong(split[0]));
-            productVO.setTwoCategoryId(Long.parseLong(split[1]));
-            productVO.setThreeCategoryId(Long.parseLong(split[2]));
             Long[] splitLong = (Long[]) ConvertUtils.convert(split, Long.class);
             productVO.setCategoryKeys(splitLong);
         }
@@ -46,9 +81,13 @@ public class ProductController {
 
     @PostMapping("add")
     public ResponseBean add(@RequestBody ProductVO productVO) {
-        if (productVO != null) {
-            productService.addProduct(productVO);
-            return ResponseBean.success();
+        try {
+            if (productVO != null) {
+                productService.addProduct(productVO);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "参数为空");
@@ -57,9 +96,13 @@ public class ProductController {
 
     @PutMapping("publish/{productId}")
     public ResponseBean publish(@PathVariable Long productId) {
-        if (productId != null) {
-            productService.publish(productId);
-            return ResponseBean.success();
+        try {
+            if (productId != null) {
+                productService.publish(productId);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
@@ -68,9 +111,13 @@ public class ProductController {
 
     @PutMapping("remove/{productId}")
     public ResponseBean remove(@PathVariable Long productId) {
-        if (productId != null) {
-            productService.remove(productId);
-            return ResponseBean.success();
+        try {
+            if (productId != null) {
+                productService.remove(productId);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
@@ -79,9 +126,13 @@ public class ProductController {
 
     @DeleteMapping("delete/{productId}")
     public ResponseBean delete(@PathVariable Long productId) {
-        if (productId != null) {
-            productService.delete(productId);
-            return ResponseBean.success();
+        try {
+            if (productId != null) {
+                productService.delete(productId);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
@@ -90,9 +141,13 @@ public class ProductController {
 
     @PutMapping("back/{productId}")
     public ResponseBean back(@PathVariable Long productId) {
-        if (productId != null) {
-            productService.back(productId);
-            return ResponseBean.success();
+        try {
+            if (productId != null) {
+                productService.back(productId);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
@@ -101,9 +156,13 @@ public class ProductController {
 
     @GetMapping("edit/{productId}")
     public ResponseBean edit(@PathVariable Long productId) {
-        if (productId != null) {
-            ProductVO productVO = productService.edit(productId);
-            return ResponseBean.success(productVO);
+        try {
+            if (productId != null) {
+                ProductVO productVO = productService.edit(productId);
+                return ResponseBean.success(productVO);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
@@ -113,9 +172,13 @@ public class ProductController {
     @PutMapping("update/{productId}")
     public ResponseBean edit(@PathVariable Long productId,
                              @RequestBody ProductVO productVO) {
-        if (productId != null && productVO != null) {
-            productService.update(productId, productVO);
-            return ResponseBean.success();
+        try {
+            if (productId != null && productVO != null) {
+                productService.update(productId, productVO);
+                return ResponseBean.success();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         HashMap<Object, Object> map = new HashMap<>();
         map.put("errorMsg", "异常");
