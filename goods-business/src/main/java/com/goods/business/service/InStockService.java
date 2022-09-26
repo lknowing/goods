@@ -1,5 +1,6 @@
 package com.goods.business.service;
 
+import com.goods.common.vo.business.InStockDetailVO;
 import com.goods.common.vo.business.InStockVO;
 import com.goods.common.vo.system.PageVO;
 
@@ -21,7 +22,7 @@ public interface InStockService {
 
     void back(Long inStockId);
 
-    Map detail(Long inStockId,Integer pageNum);
+    InStockDetailVO detail(Long inStockId, Integer pageNum);
 
     void addIntoStock(InStockVO inStockVO);
 

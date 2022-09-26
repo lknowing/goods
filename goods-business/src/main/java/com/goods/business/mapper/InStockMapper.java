@@ -17,5 +17,5 @@ import java.util.List;
  */
 @Repository
 public interface InStockMapper extends Mapper<InStock> {
-    List<InStockItemVO> getInStockItemVO(@Param("inStockId") Long id,@Param("pageNo") Integer pageNo);
+    List<InStockItemVO> getInStockItemVO(@Param("inStockId") Long id, @Param("pageNo") Integer pageNo);
 }

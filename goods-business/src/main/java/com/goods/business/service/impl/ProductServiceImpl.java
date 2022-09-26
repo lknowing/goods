@@ -105,6 +105,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long productId) {
         productMapper.deleteByPrimaryKey(productId);
+        Product product = productMapper.selectByPrimaryKey(productId);
+        String pNum = product.getPNum();
+        Example example = new Example(ProductStock.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("pNum", pNum);
+        productStockMapper.deleteByExample(example);
     }
 
     @Override
@@ -151,11 +157,16 @@ public class ProductServiceImpl implements ProductService {
             productStock.setPNum(product.getPNum());
             ProductStock stock = productStockMapper.selectOne(productStock);
             ProductStockVO productStockVO = new ProductStockVO();
-            BeanUtils.copyProperties(product, productStockVO);
-            productStockVO.setStock(stock.getStock());
+            if (stock != null) {
+                BeanUtils.copyProperties(product, productStockVO);
+                productStockVO.setStock(stock.getStock());
+            }
             return productStockVO;
         }).collect(Collectors.toList());
-        List<ProductStockVO> page = ListPageUtils.page(stockVoList, pageSize, pageNum);
+        List<ProductStockVO> collect = stockVoList.stream().filter(productStockVO -> {
+            return productStockVO.getStock() != null;
+        }).collect(Collectors.toList());
+        List<ProductStockVO> page = ListPageUtils.page(collect, pageSize, pageNum);
         return new PageVO<>(stockVoList.size(), page);
     }
 

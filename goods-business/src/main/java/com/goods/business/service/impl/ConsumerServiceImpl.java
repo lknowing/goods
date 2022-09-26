@@ -86,4 +86,15 @@ public class ConsumerServiceImpl implements ConsumerService {
             consumerMapper.deleteByPrimaryKey(consumerId);
         }
     }
+
+    @Override
+    public List<ConsumerVO> findAll() {
+        List<Consumer> consumerList = consumerMapper.selectAll();
+        List<ConsumerVO> consumerVOList = consumerList.stream().map(consumer -> {
+            ConsumerVO consumerVO = new ConsumerVO();
+            BeanUtils.copyProperties(consumer, consumerVO);
+            return consumerVO;
+        }).collect(Collectors.toList());
+        return consumerVOList;
+    }
 }

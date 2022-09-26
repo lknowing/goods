@@ -3,11 +3,13 @@ package com.goods.controller.business;
 import com.goods.business.service.ConsumerService;
 import com.goods.common.response.ResponseBean;
 import com.goods.common.vo.business.ConsumerVO;
+import com.goods.common.vo.business.SupplierVO;
 import com.goods.common.vo.system.PageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * title:
@@ -21,6 +23,12 @@ import java.util.HashMap;
 public class ConsumerController {
     @Autowired
     private ConsumerService consumerService;
+
+    @GetMapping("findAll")
+    public ResponseBean findAll() {
+        List<ConsumerVO> consumerVOList = consumerService.findAll();
+        return ResponseBean.success(consumerVOList);
+    }
 
     // business/consumer/findConsumerList?pageNum=1&pageSize=10&name=
     @GetMapping("findConsumerList")

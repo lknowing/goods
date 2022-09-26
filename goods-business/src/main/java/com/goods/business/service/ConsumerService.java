@@ -3,6 +3,8 @@ package com.goods.business.service;
 import com.goods.common.vo.business.ConsumerVO;
 import com.goods.common.vo.system.PageVO;
 
+import java.util.List;
+
 /**
  * title:
  *
@@ -20,4 +22,6 @@ public interface ConsumerService {
     void update(Long consumerId, ConsumerVO consumerVO);
 
     void delete(Long consumerId);
+
+    List<ConsumerVO> findAll();
 }

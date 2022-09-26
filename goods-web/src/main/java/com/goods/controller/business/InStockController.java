@@ -3,6 +3,7 @@ package com.goods.controller.business;
 import com.goods.business.service.InStockService;
 import com.goods.common.response.ActiveUser;
 import com.goods.common.response.ResponseBean;
+import com.goods.common.vo.business.InStockDetailVO;
 import com.goods.common.vo.business.InStockVO;
 import com.goods.common.vo.system.PageVO;
 import org.apache.shiro.SecurityUtils;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * title:
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("business/inStock")
-public class StockController {
+public class InStockController {
     @Autowired
     private InStockService inStockService;
 
@@ -115,8 +115,8 @@ public class StockController {
     public ResponseBean detail(@PathVariable Long inStockId,
                                @RequestParam Integer pageNum) {
         try {
-            Map map = inStockService.detail(inStockId, pageNum);
-            return ResponseBean.success(map);
+            InStockDetailVO inStockDetailVO = inStockService.detail(inStockId, pageNum);
+            return ResponseBean.success(inStockDetailVO);
         } catch (Exception e) {
             e.printStackTrace();
         }

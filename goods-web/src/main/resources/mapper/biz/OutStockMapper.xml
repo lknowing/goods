@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.goods.business.mapper.OutStockMapper">
+    <resultMap id="OutStockMap" type="com.goods.common.vo.business.OutStockItemVO" autoMapping="true">
+        <id property="id" column="id"/>
+    </resultMap>
+
+    <select id="getOutStockItemVO" resultMap="OutStockMap">
+        select bp.id,
+               bp.p_num,
+               bp.name,
+               bp.model,
+               bp.unit,
+               bp.image_url,
+               bosi.product_number 'count'
+        from biz_out_stock bos
+                 inner join biz_out_stock_info bosi
+                            on bos.out_num = bosi.out_num
+                 inner join biz_product bp
+                            on bosi.p_num = bp.p_num
+        where bos.id = #{outStockId}
+        limit #{pageNo},3
+    </select>
+
+</mapper>

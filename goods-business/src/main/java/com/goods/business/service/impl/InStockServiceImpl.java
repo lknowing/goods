@@ -8,6 +8,7 @@ import com.goods.common.model.business.InStockInfo;
 import com.goods.common.model.business.ProductStock;
 import com.goods.common.model.business.Supplier;
 import com.goods.common.utils.ListPageUtils;
+import com.goods.common.vo.business.InStockDetailVO;
 import com.goods.common.vo.business.InStockItemVO;
 import com.goods.common.vo.business.InStockVO;
 import com.goods.common.vo.business.SupplierVO;
@@ -17,7 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -91,6 +95,12 @@ public class InStockServiceImpl implements InStockService {
     @Override
     public void delete(Long inStockId) {
         inStockMapper.deleteByPrimaryKey(inStockId);
+        InStock inStock = inStockMapper.selectByPrimaryKey(inStockId);
+        String inNum = inStock.getInNum();
+        Example example = new Example(InStockInfo.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("inNum", inNum);
+        inStockInfoMapper.deleteByExample(example);
     }
 
     @Override
@@ -102,19 +112,19 @@ public class InStockServiceImpl implements InStockService {
     }
 
     @Override
-    public Map detail(Long inStockId, Integer pageNum) {
-        HashMap<String, Object> map = new HashMap<>();
+    public InStockDetailVO detail(Long inStockId, Integer pageNum) {
         InStock inStock = inStockMapper.selectByPrimaryKey(inStockId);
         Integer pageNo = (pageNum - 1) * 3;
         List<InStockItemVO> inStockItemVOS = inStockMapper.getInStockItemVO(inStock.getId(), pageNo);
         Supplier supplier = supplyMapper.selectByPrimaryKey(inStock.getSupplierId());
         SupplierVO supplierVO = new SupplierVO();
         BeanUtils.copyProperties(supplier, supplierVO);
-        map.put("status", inStock.getStatus());
-        map.put("total", inStockItemVOS.size());
-        map.put("itemVOS", inStockItemVOS);
-        map.put("supplierVO", supplierVO);
-        return map;
+        InStockDetailVO inStockDetailVO = new InStockDetailVO();
+        inStockDetailVO.setStatus(inStock.getStatus());
+        inStockDetailVO.setTotal(inStockItemVOS.size());
+        inStockDetailVO.setItemVOS(inStockItemVOS);
+        inStockDetailVO.setSupplierVO(supplierVO);
+        return inStockDetailVO;
     }
 
     @Override
@@ -123,6 +133,21 @@ public class InStockServiceImpl implements InStockService {
         inStockVO.setModified(new Date());
         InStock inStock = new InStock();
         BeanUtils.copyProperties(inStockVO, inStock);
+        if (inStockVO.getSupplierId() == null) {
+            SupplierVO supplierVO = new SupplierVO();
+            supplierVO.setCreateTime(new Date());
+            supplierVO.setModifiedTime(new Date());
+            supplierVO.setName(inStockVO.getName());
+            supplierVO.setAddress(inStockVO.getAddress());
+            supplierVO.setEmail(inStockVO.getEmail());
+            supplierVO.setPhone(inStockVO.getPhone());
+            supplierVO.setSort(inStockVO.getSort());
+            supplierVO.setContact(inStockVO.getContact());
+            Supplier supplier = new Supplier();
+            BeanUtils.copyProperties(supplierVO, supplier);
+            supplyMapper.insert(supplier);
+            inStock.setSupplierId(supplier.getId());
+        }
         inStock.setStatus(2);
         List<Object> products = inStockVO.getProducts();
         String jsonString = JSON.toJSONString(products);
@@ -142,13 +167,6 @@ public class InStockServiceImpl implements InStockService {
             inStockInfo.setCreateTime(new Date());
             inStockInfo.setModifiedTime(new Date());
             inStockInfoMapper.insert(inStockInfo);
-//            Example example = new Example(ProductStock.class);
-//            Example.Criteria criteria = example.createCriteria();
-//            criteria.andEqualTo("pNum", pNum);
-//            List<ProductStock> productStocks = productStockMapper.selectByExample(example);
-//            Long stock = productStocks.get(0).getStock();
-//            stock += productNumber;
-//            productStockMapper.updateByPNum(pNum, stock);
         });
         inStock.setProductNumber(productNum.get());
 
@@ -171,10 +189,17 @@ public class InStockServiceImpl implements InStockService {
             Example example = new Example(ProductStock.class);
             Example.Criteria criteria = example.createCriteria();
             criteria.andEqualTo("pNum", pNum);
-            List<ProductStock> productStocks = productStockMapper.selectByExample(example);
-            Long stock = productStocks.get(0).getStock();
-            stock += productNumber;
-            productStockMapper.updateByPNum(pNum, stock);
+            ProductStock productStock = productStockMapper.selectOneByExample(example);
+            if (productStock != null) {
+                Long stock = productStock.getStock();
+                stock += productNumber;
+                productStockMapper.updateByPNum(pNum, stock);
+            } else {
+                ProductStock ps = new ProductStock();
+                ps.setPNum(pNum);
+                ps.setStock(productNumber.longValue());
+                productStockMapper.insert(ps);
+            }
         });
     }
 }

@@ -7,16 +7,14 @@ import com.goods.common.response.ActiveUser;
 import com.goods.common.utils.ListPageUtils;
 import com.goods.common.vo.business.HealthVO;
 import com.goods.common.vo.system.PageVO;
+import lombok.SneakyThrows;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +37,12 @@ public class HealthServiceImpl implements HealthService {
             Example example = new Example(Health.class);
             Example.Criteria criteria = example.createCriteria();
             criteria.andEqualTo("userId", userId);
-            List<Health> healthList = healthMapper.selectByExample(example);
-            if (healthList.size() != 0) {
+            Date todayTime = getTodayTime();
+            criteria.andGreaterThanOrEqualTo("createTime", todayTime);
+            Health health = healthMapper.selectOneByExample(example);
+            if (health != null) {
                 HealthVO healthVO = new HealthVO();
-                BeanUtils.copyProperties(healthList.get(0), healthVO);
+                BeanUtils.copyProperties(health, healthVO);
                 map.put("success", true);
                 map.put("data", healthVO);
                 return map;
@@ -58,6 +58,16 @@ public class HealthServiceImpl implements HealthService {
         return map;
     }
 
+    private Date getTodayTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
+    @SneakyThrows
     @Override
     public Map report(HealthVO healthVO, ActiveUser activeUser) {
         HashMap<String, Object> map = new HashMap<>();
@@ -66,7 +76,9 @@ public class HealthServiceImpl implements HealthService {
             healthVO.setUserId(userId);
             Health health = new Health();
             BeanUtils.copyProperties(healthVO, health);
+
             health.setCreateTime(new Date());
+
             healthMapper.insert(health);
             map.put("success", true);
             return map;
